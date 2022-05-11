@@ -24,6 +24,8 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	}
 
 	/**Compara el vertice a otro objeto
+	 *@param o - Objeto a comparar
+	 *@return boolean indicando si son equivalentes
 	 */
 	public boolean equals(Object o)
 	{
@@ -95,26 +97,30 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
     public ArbolAVL(Collection<T> coleccion)
     {
 	//super(coleccion);
-	super();
-	Lista<T> lista = new Lista<T>();
+	//super();
 	for(T elemento : coleccion)
 	    {
-		lista.add(elemento);
-	    }
-	buildUnsorted(lista);
+		add(elemento);
+	    }	
 	//System.out.println("constructor");
 	
     }
 
-    /**Agrega un elemento de forma ordenada
+    /**Inserta un elemento de forma ordenada
      *@param elemento - elemento a agrgar
      */
     @Override
     public void add(T elemento)
     {
+	//System.out.println("Añadiendo " + elemento);
         insert(elemento);
     }
 
+    public void balancearAVL()
+    {
+        raiz = rotarIzquierda(raiz);
+    }
+    
     /**Busca un elemento en el arbol, y si lo encuentra, regresa el vértice que lo contiene
      *@param elemento - elemento a buscar
      *@return vertice que contiene al elemento
@@ -147,6 +153,134 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 
 	//Si no se encontró el elemento
 	return null;
+    }
+
+    /**Obtiene la diferencia de la altura maxima del subarbol izquierdo y derecho de v.
+     *Regresa un numero menor a -1 si es pesado a la derecha, y mayor a 1 si es pesado a la izquierda.
+     *@param v - raiz del subarbol cuya diferencia de balance se quiere saber
+     *@return diferencia de altura de los subarboles hijos.
+     */
+    private int balance(Vertice v)
+    {
+	int d = 0;
+	int i = 0;
+	if(v.hayDerecho())
+	{
+	    d = v.derecho.altura();
+	}
+	if(v.hayIzquierdo())
+	{
+	    i = v.izquierdo.altura();
+	}
+        int diff = i - d;
+
+	return diff;
+    }
+
+    /**Obtiene la diferencia de balance del arbol
+     *@return diferencia del balance
+     */
+    public int balanceDiff()
+    {
+	return balance(raiz);
+    }
+
+    /**Rota un subarbol a la derecha
+     *@param v - raiz del subarbol a rotar
+     */
+    private void rotarDerecha(Vertice v)
+    {
+	if(v == null || !v.hayIzquierdo())
+	{
+	    return;
+	}
+
+	/*
+	 *    padre                padre
+	 *      |                    |
+	 *      a(v)                 b
+	 *     /  \                 /  \
+	 *    b   gamma   ->       alfa a(v)
+	 *   /  \                      /  \
+	 *  alfa beta                beta  gamma
+	 *
+	 *
+	 */
+
+	//Intercambio de beta
+        Vertice tempi = v.izquierdo;
+	v.izquierdo = tempi.derecho;
+	tempd.derecho = v;
+
+	//actualiza los nodos padres
+	tempi.padre = v.padre;
+	v.padre = tempi;
+	if(v.izquierdo != null)
+	    {
+		v.izquierdo.padre = v;
+	    }
+
+	if(tempi.padre != null)
+	{
+	    if(tempi.padre.izquierdo == v.elemento)
+	    {
+		tempi.padre.izquierdo = tempi;
+	    }
+	    else
+	    {
+		tempi.padre.derecho = tempi;
+	    }
+	}
+	return tempi;
+    }
+    /**Rota un subarbol a la izquierda
+     *@param v - raiz del subarbol a rotar
+     */
+    private Vertice rotarIzquierda(Vertice v)
+    {
+	if(v == null || !v.hayDerecho())
+	{
+	    return v;
+	}
+
+	/*
+	 *    padre                padre
+	 *      |                    |
+	 *      v                    b
+	 *     /  \                 /  \
+	 *   alfa  b   ->          v    gamma
+	 *        /  \            /  \    
+	 *      beta gamma      alfa  beta
+	 *
+	 *
+	 */
+
+	//intercambia beta
+	Vertice tempd = v.derecho;
+	v.derecho = tempd.izquierdo;
+	tempd.izquierdo = v;
+
+	//actualiza los padres
+	tempd.padre = v.padre;
+	v.padre = tempd;
+	if(v.derecho != null)
+	    {
+		v.derecho.padre = v;
+	    }
+
+	if(tempd.padre != null)
+	{
+	    if(tempd.padre.izquierdo == v.elemento)
+	    {
+		tempd.padre.izquierdo = tempd;
+	    }
+	    else
+	    {
+		tempd.padre.derecho = tempd;
+	    }
+	}
+	return tempd;
+
     }
 
 }
