@@ -179,7 +179,7 @@ public class ArbolBinarioBusqueda<T extends Comparable<T>> extends ArbolBinario<
      */
     public void insert(T elemento)
     {
-	insert(raiz, null, elemento, new Comparator<T>(){
+	raiz = insert(raiz, null, elemento, new Comparator<T>(){
 		@Override
 		public int compare(T o1, T o2) {
 		    return ((Integer)o1) - ((Integer)o2);

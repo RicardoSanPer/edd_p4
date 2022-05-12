@@ -2,6 +2,8 @@ package edd.src.Estructuras;
 
 public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 {
+    /**Clase vertice para arboles AVL
+     */
     public class VerticeAVL extends Vertice
     {
 	/**Contructor por parametro*/
@@ -20,7 +22,7 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	    {
 		return "";
 	    }
-	    return elemento.toString() + " H: " +  String.valueOf(this.altura());
+	    return (elemento.toString() + " H: " +  String.valueOf(altura()));
 	}
 
 	/**Compara el vertice a otro objeto
@@ -71,7 +73,7 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	{
 	    int alturaI = 0;
 	    int alturaD = 0;
-
+	    
 	    if(hayIzquierdo())
 	    {
 		alturaI = izquierdo.altura();
@@ -81,8 +83,9 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 		alturaD = derecho.altura();
 	    }
 	    int max = (alturaI > alturaD)? alturaI : alturaD;
-	    return 1 + max;
+	    return max;
 	}
+	
 	
     }
 
@@ -100,10 +103,24 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	//super();
 	for(T elemento : coleccion)
 	    {
-		add(elemento);
+		this.add(elemento);
 	    }	
 	//System.out.println("constructor");
 	
+    }
+
+    /**Construye el arbol AVL a partir de una coleccion
+     *@param coleccion - coleccion de elementos
+     */
+    public void construirAVL(Collection<T> coleccion)
+    {
+	elementos =0;
+	raiz = null;
+	for(T elemento : coleccion)
+	    {
+		this.add(elemento);
+	    }
+	//raiz = balancearAVL(raiz);
     }
 
     /**Inserta un elemento de forma ordenada
@@ -112,47 +129,238 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
     @Override
     public void add(T elemento)
     {
-	//System.out.println("Añadiendo " + elemento);
-        insert(elemento);
+	if(elemento == null)
+	{
+	    return;
+	}
+
+	raiz = insertar(raiz, elemento);
+	
+	raiz = balancear(raiz);
     }
 
-    public void balancearAVL()
-    {
-        raiz = rotarIzquierda(raiz);
-    }
-    
-    /**Busca un elemento en el arbol, y si lo encuentra, regresa el vértice que lo contiene
-     *@param elemento - elemento a buscar
-     *@return vertice que contiene al elemento
+    /**Elimina un nodo con un elemento dado
+     *@param elemento - elemento a eliminar
      */
-    private Vertice getVertice(T elemento)
+    public boolean delete(T elemento)
     {
 	if(elemento == null)
 	{
-	    return null;
+	    return false;
 	}
-	Vertice temp = raiz;
-	while(temp.hayDerecho() || temp.hayIzquierdo())
+	int stemp = elementos;
+	raiz = eliminar(raiz, elemento);
+	raiz = balancear(raiz);
+	if(stemp == elementos)
 	{
-	    //regresa el nodo actual si es el nodo que contiene al elemento
-	    if(temp.elemento == elemento)
+	    return false;
+	}
+	return true;
+    }
+
+    
+    
+    /**Inserta un elemento en el subarbol y balancea mediante rotaciones
+     *@param v - vertice raiz del subarbol
+     *@param elemento - elemento a insertar
+     *@return subarbol balanceado
+     */
+    private Vertice insertar(Vertice v, T elemento)
+    {
+	if(v == null)
+	{
+	    elementos++;
+	    return (new Vertice(elemento));
+	}
+	//Si el elemento es mayor al nodo actual
+	if(elemento.compareTo(v.elemento) < 0)
+	{
+	    v.izquierdo = insertar(v.izquierdo, elemento);
+	    if(v.hayIzquierdo())
 	    {
-		return temp;
+		v.izquierdo.padre = v;
 	    }
-	    //buscar en el subarbol derecho
-	    else if(elemento.compareTo(temp.elemento)>0 && temp.derecho != null)
+	}
+	//si es menor
+	else if(elemento.compareTo(v.elemento)>0)
+	{
+	    v.derecho = insertar(v.derecho, elemento);
+	    if(v.hayDerecho())
 	    {
-		temp = temp.derecho;
-	    }
-	    //busca en el subarbol iazquierdo
-	    else if(temp.izquierdo != null)
-	    {
-		temp = temp.izquierdo;
-	    }
+		v.derecho.padre = v;
+	    } 
+	}
+	//Si es igual
+	else
+	{
+	    return v;
 	}
 
-	//Si no se encontró el elemento
-	return null;
+        v = balancearAVL(v);
+	
+	return v;
+	
+    }
+
+    /**Elimina un nodo con un elemento dado
+     *@param v - vertice raiz del subarbol
+     *@param elemento - elemento a eliminar
+     *@return subarbol con el elemento eliminado y balanceado
+     */
+    private Vertice eliminar(Vertice v, T elemento)
+    {
+	if(v == null)
+	{
+	    return v;
+	}
+
+	//Si el elemento es menor al nodo actual
+	if(elemento.compareTo(v.elemento) < 0)
+	{
+	    v.izquierdo = eliminar(v.izquierdo, elemento);
+	    if(v.hayIzquierdo())
+	    {
+		v.izquierdo.padre = v;
+	    }
+	}
+	//Si es mayor al nodo actual
+	else if(elemento.compareTo(v.elemento)>0)
+	{
+	    v.derecho = eliminar(v.derecho, elemento);
+	    if(v.hayDerecho())
+	    {
+		v.derecho.padre = v;
+	    }
+	}
+	//Si es el nodo a eliminar
+	else
+	{
+	    //Si hay a lo mucho un hijo
+	    if(!v.hayIzquierdo() || !v.hayDerecho())
+	    {
+		Vertice temp = new Vertice(null);
+		//Si no hay izquierdo
+		if(temp == v.izquierdo)
+		{
+		    temp = v.derecho;
+		}
+		//Si no hay derecho
+		else
+		{
+		    temp = v.izquierdo;
+		}
+
+		//si no hay hijos
+		if(temp==null)
+		{
+		    temp = v;
+		    temp.padre = v.padre;
+		    v = null;
+		}
+		else
+		{
+		    v = temp;
+		}
+	    }
+	    else
+	    {
+		//Obtiene el vertice con el elemento mas pequeño del subarbol derecho
+		Vertice temp = verticeMinimo(v.derecho);
+		
+		//Cambio de valores y reasignacion de padre
+		v.elemento = temp.elemento;
+		v.derecho = eliminar(v.derecho, temp.elemento);
+		if(v.hayDerecho())
+		{
+		    v.derecho.padre = v;
+		}
+	    }
+	}
+	elementos--;
+	//Balancear
+	v = balancearAVL(v);
+	return v;
+    }
+
+    /**Obtiene el nodo con el elemento más pequeño de un subarbol
+     *@param v - vertice raiz del subarbol
+     *@return vertice con el nodo mas pequeño
+     */
+    private Vertice verticeMinimo(Vertice v)
+    {
+	Vertice temp = v;
+	while(temp.hayIzquierdo())
+	{
+	    temp = temp.izquierdo;
+	}
+	return temp;
+    }
+
+    /**Balancea el arbol
+     *@param v - raiz del arbol
+     *@return raiz balanceada
+     */
+    private Vertice balancear(Vertice v)
+    {
+	if(v==null)
+	{
+	    //System.out.println("Nulo");
+	    return v;
+	}
+        
+	v.derecho = balancearAVL(v.derecho);
+	v.izquierdo = balancearAVL(v.izquierdo);
+
+	v.derecho = balancear(v.derecho);
+	v.izquierdo = balancear(v.izquierdo);
+	return v;
+    }
+    
+    /**Balancea un subarbol mediante rotaciones
+     *@param v - vertice raiz del subarbol a balancear
+     *@return subarbol balanceado.
+     */
+    public Vertice balancearAVL(Vertice v)
+    {
+	//System.out.println("Balanceando " + v);
+	
+	    
+	//System.out.println("AVL BAL");
+	if(v==null)
+	{
+	    //System.out.println("Nulo");
+	    return v;
+	}
+	int peso = balanceNodos(v);
+        T valor = v.elemento;
+
+	//System.out.println(peso);
+	
+	//Si esta desbalanceado:
+	//izquierda izquierda
+	if(peso > 1  && valor.compareTo(v.izquierdo.elemento)<0)
+	{
+	    return rotarDerecha(v);
+	}
+	//derecha derecha
+	if(peso < -1 && valor.compareTo(v.derecho.elemento)>0)
+	{
+	    return rotarIzquierda(v);
+	}
+
+	//izquierda derecha
+	if(peso > 1 &&  valor.compareTo(v.izquierdo.elemento)>0)
+	{
+	    v.izquierdo = rotarIzquierda(v.izquierdo);
+	    return rotarDerecha(v);
+	}
+	//derecha izquierda
+	if(peso < -1 &&  valor.compareTo(v.derecho.elemento)<0)
+	{
+	    v.derecho = rotarDerecha(v.derecho);
+	    return rotarIzquierda(v);
+	}
+	return v;
     }
 
     /**Obtiene la diferencia de la altura maxima del subarbol izquierdo y derecho de v.
@@ -160,8 +368,12 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
      *@param v - raiz del subarbol cuya diferencia de balance se quiere saber
      *@return diferencia de altura de los subarboles hijos.
      */
-    private int balance(Vertice v)
+    private int balanceNodos(Vertice v)
     {
+	if(v==null)
+	{
+	    return 0;
+	}
 	int d = 0;
 	int i = 0;
 	if(v.hayDerecho())
@@ -172,27 +384,21 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	{
 	    i = v.izquierdo.altura();
 	}
+	
         int diff = i - d;
+	//System.out.println("Elemento " + v.elemento + " I: " +i + " D: " + d + " diff; " +diff);
 
 	return diff;
-    }
-
-    /**Obtiene la diferencia de balance del arbol
-     *@return diferencia del balance
-     */
-    public int balanceDiff()
-    {
-	return balance(raiz);
     }
 
     /**Rota un subarbol a la derecha
      *@param v - raiz del subarbol a rotar
      */
-    private void rotarDerecha(Vertice v)
+    private Vertice rotarDerecha(Vertice v)
     {
 	if(v == null || !v.hayIzquierdo())
 	{
-	    return;
+	    return v;
 	}
 
 	/*
@@ -209,17 +415,17 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 
 	//Intercambio de beta
         Vertice tempi = v.izquierdo;
+	
 	v.izquierdo = tempi.derecho;
-	tempd.derecho = v;
+	tempi.derecho = v;
 
 	//actualiza los nodos padres
 	tempi.padre = v.padre;
 	v.padre = tempi;
 	if(v.izquierdo != null)
-	    {
-		v.izquierdo.padre = v;
-	    }
-
+	{
+	    v.izquierdo.padre = v;
+	}
 	if(tempi.padre != null)
 	{
 	    if(tempi.padre.izquierdo == v.elemento)
@@ -264,10 +470,9 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	tempd.padre = v.padre;
 	v.padre = tempd;
 	if(v.derecho != null)
-	    {
-		v.derecho.padre = v;
-	    }
-
+	{
+	    v.derecho.padre = v;
+	}
 	if(tempd.padre != null)
 	{
 	    if(tempd.padre.izquierdo == v.elemento)
@@ -283,4 +488,36 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 
     }
 
+    /**String del arbol en inorden
+     *@return string con los elementos en inorden y su altura
+     */
+    public String toIO()
+    {
+	return IO(raiz);
+    }
+
+    /**String del subarbol en inorden
+     *@param v - raiz del subarbol
+     *@return string con los elementos en inorden y con su altura.
+     */
+    private String IO(Vertice v)
+    {
+	String text = "";
+	if(v == null)
+	    {
+		return "";
+	    }
+        if(v.hayIzquierdo())
+	    {
+		text += IO(v.izquierdo);
+	    }
+	//añadir la raiz del subarbol
+	text += "(" + v + " H: " + v.altura() + ") ";
+	//inorden del subarbol derecho
+	if(v.hayDerecho())
+	    {
+		text += IO(v.derecho);
+	    }
+	return text;
+    }
 }
