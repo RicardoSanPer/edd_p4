@@ -32,7 +32,7 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	    if(o==null || getClass() !=o.getClass())
 	    {
 		return false;
-	    }
+	    } 
 	    @SuppressWarnings("unchecked")
 	    VerticeAVL vertice = (VerticeAVL) o;
 
@@ -105,7 +105,18 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	//System.out.println("constructor");
 	
     }
+    
 
+ /**
+     * Construye un nuevo vértice
+     * @param elemento el elemento dentro del vértice.
+     * @return un nuevo vértice con el elemento recibido dentro del mismo.
+     */
+    @Override
+    protected Vertice nuevoVertice(T elemento) {
+        return new VerticeAVL(elemento);
+    }
+    
     /**Inserta un elemento de forma ordenada
      *@param elemento - elemento a agrgar
      */
@@ -116,6 +127,40 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
         insert(elemento);
     }
 
+
+    /**Inserta un elemento de forma ordenada
+     *@param elemento - elemento a agregar
+     */
+    private void insert(T elemento){
+	if(elemento == null)
+	    return;
+	super.add(elemento); //agregamos el elemento a un árbol AVL como un BST
+	
+	int i = altura++;  // incrementar la altura en uno porque se agregó un elem
+
+	rebalancea(v);  //balanceamos desde el elemento agregado hasta la raiz.
+	
+	    
+
+    }
+
+    private void rebalancea(VerticeAVL v){
+	if(v.derecho.altura() == v.izquierdo.altura() + 2)
+	    v.desvalanceDerecha();
+	if(v.izquierdo.altura() == v.derecho.altura() + 2)
+	   v.desvalanceIzquierda();
+    }
+
+    private void desvalanceDerecha(){
+    }
+
+    private void desvalanceIzquierda(){
+    }
+
+    
+
+
+    
     public void balancearAVL()
     {
         raiz = rotarIzquierda(raiz);
