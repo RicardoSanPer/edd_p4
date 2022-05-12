@@ -136,37 +136,58 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	    return;
 	super.add(elemento); //agregamos el elemento a un árbol AVL como un BST
 
-	
-	//
-	// falta aquí
-	//
 
+	/**Algoritmo para agregar un elemento e a un árbol AVL:
+	   /1  Insertamos e al árbol como un BST   
+	   / cualquiera.
+	   /2 Sea v el nodo donde se guarda e,
+	   / actualizamos alturas y rebalanceamos
+	   /  desde v hasta la raíz.
+	*/
 
-	
-	int i = altura++;  // incrementar la altura en uno porque se agregó un elem
-
-	rebalancea(v);  //balanceamos desde el elemento agregado hasta la raiz.
+	/**
+	   /OJO AQUÍ :D
+	 */
+	(VerticeAVL)elemento.balancearAVL();  //balanceamos desde el elemento agregado hasta la raiz.
 	
 	    
 
     }
 
-    private void rebalancea(VerticeAVL v){
-	if(v.derecho.altura() == v.izquierdo.altura() + 2)
-	    v.desvalanceDerecha();
-	if(v.izquierdo.altura() == v.derecho.altura() + 2)
-	   v.desvalanceIzquierda();
+    public void delete(VerticeAVL elemento){
+	if(elemento == null)
+	    return;
+	VerticeAVL v = new VerticeAVL(elemento);
+
+	//Caso1
+	//Para eliminar una hoja del árbol. 
+	if(v.hayDerecho == false || v.hayIzquierdo == false){
+	    if(padre.izquierdo == v)
+		padre.izquierdo == null;
+	    if(padre.derecho == v)
+		padre.derecho == null;
+	}
+
+	//Caso2
+	//Eliminar vértice con un sólo hijo.
+	if(v.hayIzquierdo == true & v.hayDerecho == false){
+	    v.padre.izquierdo == v.izquierdo;
+		//¿v == null?//
+	}
+
+	if(v.hayDerecho == true & v.hayIzquierdo == false){
+	    v.padre.derecho == v.derecho;
+		//¿v == null?//
+	}	
+
+	//Caso3
+	//Eliminar vértice con 2 hijos.
+	if(v.hayDerecho == true && v.hayIzquierdo == true){
+	    /**/
+	}
+	
+	
     }
-
-    private void desvalanceDerecha(){
-    }
-
-    private void desvalanceIzquierda(){
-    }
-
-    
-
-
     
     public void balancearAVL()
     {
