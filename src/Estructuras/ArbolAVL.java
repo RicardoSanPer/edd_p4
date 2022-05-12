@@ -135,6 +135,13 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 	if(elemento == null)
 	    return;
 	super.add(elemento); //agregamos el elemento a un árbol AVL como un BST
+
+	
+	//
+	// falta aquí
+	//
+
+
 	
 	int i = altura++;  // incrementar la altura en uno porque se agregó un elem
 
