@@ -130,33 +130,54 @@ public class ArbolAVL<T extends Comparable<T>> extends ArbolBinarioBusqueda<T>
 
     /**Inserta un elemento de forma ordenada
      *@param elemento - elemento a agregar
+     *@param v - vertice raiz del subarbol
      */
-    private void insert(T elemento){
+    private VerticeAVL insert(VerticeAVL v, T elemento){
 	if(elemento == null)
 	    return;
-	super.add(elemento); //agregamos el elemento a un árbol AVL como un BST
-
-
-	/**Algoritmo para agregar un elemento e a un árbol AVL:
-	   /1  Insertamos e al árbol como un BST   
-	   / cualquiera.
-	   /2 Sea v el nodo donde se guarda e,
-	   / actualizamos alturas y rebalanceamos
-	   /  desde v hasta la raíz.
-	*/
-
-	/**
-	   /OJO AQUÍ :D
-	 */
-	(VerticeAVL)elemento.balancearAVL();  //balanceamos desde el elemento agregado hasta la raiz.
 	
-	    
+	//Caso1
+	//Insertar como raíz pues es un árbol vacío hasta ahora.
+	if(v == null){
+	    elementos++;
+	    VerticeAVL r = new VerticeAVL(elemento);
+	}
+
+	//Caso2
+	//Insertar cuando el elemento a insertar es menor
+	//    que la raíz.
+	if(elemento.compareTo(v.elemento)<0 ){   //elemento va antes
+	    if(v.izquierdo == null)
+		v.izquierdo = elemento;
+	    insert(v.izquierdo, elemento);
+	    if(v.hayIzquierdo())
+		v.izquierdo.padre = v;
+	}
+
+	//Caso3
+	//Insertar cuando el elemento a insertar es mayor
+	//     que la raíz.
+	if(elemento.compareTo(v.elemento) > 0){   //elemento va después
+	    if(v.derecho == null)
+		v.derecho = elemento;
+	    insert(v.derecha, elemento);
+	    if(v.hayDerecho())
+		 v.derecho.padre = v;
+	}
+
+	//Caso4
+	//Insertar cuando el elemento a insertar es mayor
+	//     que la raíz.
+	v = balancearAVL(v);
+	
+	return v;
 
     }
 
-    public void delete(VerticeAVL elemento){
+    public boolean delete(T elemento){
 	if(elemento == null)
 	    return;
+
 	VerticeAVL v = new VerticeAVL(elemento);
 
 	//Caso1
